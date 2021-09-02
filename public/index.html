@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta http-equiv="Content-type" content="text/html; charset=utf-8">
+  <meta name="author" content="">
+
+
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" />
+
+  <!--This makes status-bar transparent in iOS, content show underneath the status bar -->
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+
+  <!--This changes status-bar color in Android -->
+  <meta name="theme-color" content="#f1f1f1" />
+
+  <!--Icons and Tiles-->
+  <link rel="shortcut icon" type="image/png" href="/images/icon.png" />
+  <link rel="icon" type="image/png" href="/images/icon.png" />
+  <link rel="apple-touch-icon" sizes="114x114" href="/images/icon.png" />
+
+  <meta name="msapplication-TileColor" content="#fff" />
+  <meta name="msapplication-TileImage" content="/images/icon.png" />
+
+  <title>Drawing Box</title>
+
+  <link href="https://fonts.googleapis.com/css?family=Asap:400,400i,500,500i,600,600i&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" />
+  <link rel='stylesheet' href='/css/global.css' />
+  <link rel='stylesheet' href='/css/bundle.css' />
+  <!--ROLLBAR-->
+</head>
+
+<body>
+
+  <div id="drawing-box">
+
+  </div>
+
+  <script>
+    function shimport(src) {
+      try {
+        new Function('import("' + src + '")')();
+      } catch (e) {
+        var s = document.createElement('script');
+        s.src = 'https://unpkg.com/shimport';
+        s.dataset.main = src;
+        document.head.appendChild(s);
+      }
+    }
+
+    // Load via built-in import(), falling back to shimport if needed:
+    shimport('/js/bundle.js');
+  </script>
+
+</body>
+
+</html>

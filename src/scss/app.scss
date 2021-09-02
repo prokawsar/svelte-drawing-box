@@ -1,0 +1,11 @@
+//bulma vars and utils
+@import "../../node_modules/bulma/sass/utilities/initial-variables";
+
+//bulma itself
+@import "../../node_modules/bulma/bulma";
+
+//our mixins
+@import "_mixins";
+
+//rest of our css
+@import "_main";

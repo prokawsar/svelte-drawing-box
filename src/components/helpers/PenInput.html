@@ -1,0 +1,126 @@
+<div class="drawing-box {(readonly || disabled) ? 'is-readonly' : ''}" style="width:{styles.width || '340px'};height:{styles.height || '100px'}">
+  {#if disabled || readonly}
+    <img alt="image" src="{image || emptyImage}" style="width:{styles.width || '200px'}; height:{styles.height || '200px'}; border:{styles.border || '1px solid #000000'}; pointer-events: none;
+    background-image:url({backgroundImage || ''});
+    background-repeat: no-repeat;
+    background-size: contain;
+    background-position: center center;" />
+  {/if}
+  <canvas ref:canvas style="{_styles}"></canvas>
+</div>
+
+<script>
+  import DrawImage from '../../utils/drawImage.js';
+
+  export default {
+    data(){
+      return {
+        is_ready: false,
+        styles: {},
+        lineColor: '#3d44c8',
+        lineWidth: 2,
+        eraserWidth: 6,
+        backgroundImage: '',
+        readonly: false,
+        image: '',
+        emptyImage: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII=',
+        expanded: false,
+        initialScale: 1,
+        expandedScale: 2
+      }
+    },
+    computed:{
+      _styles: ({styles, readonly, backgroundImage}) => {
+
+        var default_styles = {
+          'background-color'    : '#fdfdfd',
+          'background-repeat'   : 'no-repeat',
+          'background-size'     : 'contain',
+          'background-position' : 'center center',
+          'border-top'          : '1px dotted #ccc',
+          'border-left'         : '1px dotted #ccc',
+          'border-right'        : '1px dotted #ccc',
+          'border-bottom'       : '1px dotted #ccc',
+          'width'               : '340px',
+          'height'              : '100px',
+          'background-image'    : `url(${backgroundImage})`
+        };
+
+        let _styles = {...default_styles, ...styles};
+
+        if(readonly){
+          _styles['background-color']= 'transparent';
+        }
+
+        return (Object.entries(_styles)
+        .map(([key, val]) => `${key}:${val}`)).join(';')
+      },
+      mimeType:({imageType}) => imageType ? `image/${imageType}` : `image/png`
+    },
+    oncreate(){
+      var self = this;
+      self.canvas = self.refs.canvas;
+      this.init();
+    },
+    onstate({changed, current}){
+      if(changed.readonly){
+        if(current.is_ready){
+          if(current.readonly){
+            this.drawImage.removeEvent();
+          } else {
+            this.drawImage.addEvent();
+          }
+        }
+      }
+    },
+    ondestroy(){
+      if(this.canvas){
+        this.drawImage.removeEvent();
+      }
+    },
+    methods:{
+      init(){
+
+        let {styles} = this.get();
+        this.canvas.setAttribute('width', styles.width.replace('px', ''));
+        this.canvas.setAttribute('height', styles.height.replace('px', ''));
+
+        let {image, mimeType, emptyImage, lineColor, lineWidth, eraserWidth, readonly,
+          expanded, initialScale, expandedScale} = this.get();
+
+        this.drawImage = new DrawImage(this, {
+          lineColor,
+          lineWidth,
+          eraserWidth,
+          image: (image || emptyImage),
+          mimeType,
+          readonly,
+          expanded,
+          initialScale,
+          expandedScale
+        });
+
+        this.drawImage.init();
+        this.set({is_ready:true});
+      },
+      reset(){
+        this.drawImage.reset();
+      },
+      undo(){
+        this.drawImage.undo();
+      },
+      redo(){
+        this.drawImage.redo();
+      },
+      setScaleFactor(f){
+        this.drawImage.setScaleFactor(f);
+      },
+      syncImage(imgData){
+        this.drawImage.syncImage(imgData);
+      },
+      setTool(tool){
+        this.drawImage.setTool(tool);
+      }
+    }
+  }
+</script>

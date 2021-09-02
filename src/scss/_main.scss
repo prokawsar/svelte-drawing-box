@@ -1,0 +1,33 @@
+html{
+  overflow-y: auto;
+  font-size: 16px;
+}
+html, body{
+  background:$background;
+  font-family:$family-primary;
+  width:100%;
+  height:100%;
+  color:$text;
+  position:relative;
+  line-height:1.2em;
+}
+
+.drawing-box{
+  position:relative;
+  margin: auto auto;
+  overflow:hidden;
+  img{
+    display:block;
+  }
+  canvas{
+    display:block;
+    cursor:crosshair;
+    box-sizing:border-box;
+  }
+  &.is-readonly{
+    canvas{
+      cursor: default;
+    }
+  }
+}
+

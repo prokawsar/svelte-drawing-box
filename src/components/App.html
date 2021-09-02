@@ -1,0 +1,50 @@
+<div id="mainApp">
+  <DrawingBox
+    {tools}
+    {activeTool}
+    bind:image="e_signature"
+    backgroundImage={drawing_box_background_image}
+    expandFrom="left top"
+  />
+
+</div>
+
+<script>
+  import DrawingBox from './helpers/DrawingBox.html';
+
+  export default {
+    components: {
+      DrawingBox
+    },
+    data(){
+      return {
+        e_signature: '',
+        drawing_box_background_image: '',
+        tools: [
+          {
+            name: 'Pen',
+            icon: 'pencil'
+          },
+          {
+            name: 'Eraser',
+            icon: 'eraser'
+          }
+        ],
+        activeTool: {
+          name: 'Pen',
+          icon: 'pencil'
+        },
+      }
+    },
+    oncreate() {
+      this.on('state', ({changed, current}) => {
+        if(changed.e_signature ){
+          console.log(current.e_signature)
+        }
+      })      
+    },
+    methods:{
+      
+    }
+  };
+</script>

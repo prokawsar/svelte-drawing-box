@@ -1,0 +1,180 @@
+<div class="drawing-wrapper {expanded ? 'expanded' : ''}" style="width:{styles.width || '200px'}; transform: scale({expanded ? expandedScale : initialScale});transform-origin:{expandFrom || 'center center'}" data-cy="{cy}">
+
+  <PenInput ref:penInput {...penProps} on:change />
+
+  <div class="drawing-controls" style="width:{styles.width || '200px'};">
+    {#if !readonly && !disabled}
+      <div class="field is-grouped is-grouped-centered">
+
+        <div class="control">
+          <div class="dropdown is-{showTools ? 'active' : ''} is-up">
+            <div class="dropdown-trigger">
+              <button class="button is-info is-small " data-tooltip="Tools" aria-controls="tools-dropdown" on:click="set({showTools:!showTools})">
+                <!-- <Icon icon="angle-up" size="small" /> -->
+                <Icon icon="{activeTool.icon}" size="small" />
+              </button>
+            </div>
+
+            <div class="dropdown-menu" id="tools-dropdown" role="menu" style="min-width:auto;">
+              <div class="dropdown-content">
+                {#each tools as tool}
+                  <a href="javascript:void(0);" class="dropdown-item" on:click="setTool(tool)" style="padding-right:1rem;">
+                    <Icon icon="{tool.icon}" size="small" /> <span>{tool.name}</span>
+                  </a>
+                {/each}
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="control">
+          <div class="field has-addons">
+            <div class="control">
+              <button type="button" class="button is-small is-warning " data-tooltip="Undo" on:click="undo()" disabled={!canUndo}>
+                <Icon icon="undo" size="small" />
+              </button>
+            </div>
+            <div class="control">
+              <button type="button" class="button is-small is-warning " data-tooltip="Redo" on:click="redo()" disabled={!canRedo}>
+                <Icon icon="repeat" size="small" />
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <div class="control">
+          <button type="button" class="button is-small is-danger" data-tooltip="Reset" on:click="reset()">
+            <Icon icon="refresh" size="small" />
+          </button>
+        </div>
+
+        <div class="control">
+          <button ref:expandButton type="button" class="button is-small is-dark" data-tooltip="{expanded ? 'Contract' : 'Expand'}" on:click="expandContract()">
+            <Icon icon="{expanded ? 'compress' : 'expand'}" size="small" />
+          </button>
+        </div>
+
+      </div>
+    {:else}
+      {#if drawing_label}
+        <p class="title is-5 has-text-centered">
+          {drawing_label}
+        </p>
+      {/if}
+    {/if}
+  </div>
+</div>
+
+<script>
+  import PenInput from './PenInput.html';
+  import {Icon} from '@kws3/helpers';
+
+  export default {
+    components:{
+      PenInput, Icon
+    },
+    data(){
+      return{
+        styles:{
+          width:'200px',
+          height:'200px',
+          border: '1px solid #b5b5b5'
+        },
+        lineWidth: 2,
+        eraserWidth: 6,
+        lineColor: '#ff0000',
+        backgroundImage: '../images/keratometry.png',
+        readonly: false,
+        disabled: false,
+        image: '',
+        imageType: 'png',
+
+        canUndo : false,
+        canRedo : false,
+
+        expandFrom: 'center center',
+        expanded: false,
+        initialScale: 1,
+        expandedScale: 2,
+
+        tools: [
+          {
+            name: 'Pen',
+            icon: 'pencil'
+          },
+          {
+            name: 'Eraser',
+            icon: 'eraser'
+          }
+        ],
+        activeTool: {
+          name: 'Pen',
+          icon: 'pencil'
+        },
+        showTools: false,
+        drawing_label: '',
+        cy:''
+      }
+    },
+    computed:{
+      penProps: (props) => props
+    },
+    onstate({changed, current}){
+      if(changed.expanded){
+        this.penInput && this.penInput.setScaleFactor((current.expanded ? current.expandedScale : current.initialScale))
+      }
+    },
+    oncreate(){
+      var _settingFlag = false;
+      this.penInput = this.refs.penInput;
+
+      this.on('change', (r) => {
+        _settingFlag = true;
+        this.set({
+          image: r.canvasImage,
+          canUndo : r.canUndo,
+          canRedo : r.canRedo,
+        });
+        _settingFlag = false;
+      });
+
+      this.on('state', ({changed, current}) => {
+        if(changed.image && !_settingFlag){
+          this.penInput && this.penInput.syncImage(current.image);
+        }
+      })
+
+      let {activeTool} = this.get();
+      this.setTool(activeTool)
+    },
+    methods:{
+      reset(){
+        this.penInput.reset();
+      },
+      undo(){
+        this.penInput.undo();
+      },
+      redo(){
+        this.penInput.redo();
+      },
+      expandContract(){
+        let {expanded} = this.get();
+        expanded = !expanded;
+        this.set({ expanded });
+
+        var btn = this.refs.expandButton;
+        if(btn){
+          btn._tippy.setContent(btn.getAttribute('data-tooltip'))
+        }
+      },
+      setTool(tool){
+        this.set({
+          activeTool: tool,
+          showTools: false
+        });
+
+        this.penInput.setTool(tool.name);
+      }
+    }
+  }
+</script>
